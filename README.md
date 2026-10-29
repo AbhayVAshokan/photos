@@ -3,6 +3,8 @@
 A tiny, self-hosted photo & video browser. Drop files into `./data`, open the browser, and
 organize them with favorites and albums.
 
+![Photos dashboard](./assets/dashboard.png)
+
 ## Features
 
 - Browse everything in `./data`: **All items**, **Photos**, **Videos**, **Favorites**, grouped by month
@@ -25,11 +27,11 @@ Open <http://localhost:3030>.
 
 The project folder is mounted into the container, so everything stays on your machine:
 
-| Path        | What                                  |
-| ----------- | ------------------------------------- |
-| `./data/`   | your photos and videos (just paste files in) |
-| `./photos.db` | SQLite database (favorites, albums) |
-| `./.thumbs/` | generated thumbnails (safe to delete) |
+| Path          | What                                         |
+| ------------- | -------------------------------------------- |
+| `./data/`     | your photos and videos (just paste files in) |
+| `./photos.db` | SQLite database (favorites, albums)          |
+| `./.thumbs/`  | generated thumbnails (safe to delete)        |
 
 Restarting or rebuilding the container keeps your database. Stop it with `docker compose down`.
 
