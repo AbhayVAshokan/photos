@@ -11,7 +11,7 @@ organize them with favorites and albums.
 - **Favorites**: heart any item, from the grid or the full-screen viewer
 - **Albums**: they exist only in the database, so your files are never moved. One item can be in many albums.
 - **Multi-select**: click the check circle, ⌘/Ctrl-click, Shift-click for a range, ⌘A,
-  **Select** next to a day to grab the whole day, or **long-press and drag** across photos
+  the circle next to a day to grab the whole day, or **long-press and drag** across photos
   (works with a mouse or a finger; drag to the screen edge to auto-scroll).
   Then favorite, add to an existing or new album, or remove from the current album.
 - **Lightbox**: arrow keys to navigate, `F` to favorite, `A` to add to album, `Esc` to close

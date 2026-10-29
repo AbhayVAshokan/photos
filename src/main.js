@@ -219,9 +219,9 @@ const groupAllSelected = (gi) => groupNames(gi).every((n) => state.selected.has(
 
 function groupHeadHtml(c) {
   return `<div class="group-head">
+    <button class="group-select ${groupAllSelected(c.gi) ? 'on' : ''}" data-group="${c.gi}" title="Select this day">${I.check}</button>
     <h2 class="group-label">${c.label}</h2>
     <span class="group-count">${dayGroups[c.gi].length}</span>
-    <button class="group-select" data-group="${c.gi}">${groupAllSelected(c.gi) ? 'Deselect' : 'Select'}</button>
   </div>`;
 }
 
@@ -402,7 +402,7 @@ function updateSelectionUI() {
   });
   document.querySelectorAll('.grid').forEach((g) => g.classList.toggle('selecting', state.selectMode || state.selected.size > 0));
   document.querySelectorAll('.group-select').forEach((b) => {
-    b.textContent = groupAllSelected(Number(b.dataset.group)) ? 'Deselect' : 'Select';
+    b.classList.toggle('on', groupAllSelected(Number(b.dataset.group)));
   });
   renderActionBar();
 }

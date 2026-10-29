@@ -132,17 +132,21 @@ nav li a.active .nav-icon { color: var(--accent); }
 .btn.primary:hover { filter: brightness(1.08); }
 .btn.danger-solid { background: #ff5e6c; color: #fff; }
 
-.group-head { display: flex; align-items: baseline; gap: 10px; margin: 26px 0 12px; }
+.group-head { display: flex; align-items: center; gap: 10px; margin: 26px 0 12px; }
 .group-head:first-child { margin-top: 4px; }
 .group-label { margin: 0; font-size: 15px; font-weight: 600; color: #d3d5de; letter-spacing: -0.01em; }
 .group-count { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+/* Same look as the per-photo check circle */
 .group-select {
-  margin-left: auto; padding: 4px 12px; border-radius: 999px;
-  font-size: 12.5px; font-weight: 600; color: var(--accent);
-  opacity: 0.75; transition: opacity 0.15s, background 0.15s;
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.55); color: transparent;
+  opacity: 0.6; transition: opacity 0.15s, transform 0.15s, background 0.15s, border-color 0.15s;
 }
-.group-head:hover .group-select, .group-select:focus-visible { opacity: 1; }
-.group-select:hover { background: rgba(255, 122, 138, 0.12); }
+.group-select svg { width: 13px; height: 13px; stroke-width: 3; }
+.group-head:hover .group-select, .group-select:focus-visible { opacity: 1; border-color: rgba(255, 255, 255, 0.85); }
+.group-select:hover { transform: scale(1.08); }
+.group-select.on { opacity: 1; background: var(--accent-grad); border-color: transparent; color: #1a0f12; }
 
 /* long-press: no iOS callout / text selection / image dragging */
 .tile { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
