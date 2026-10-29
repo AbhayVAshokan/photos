@@ -13,7 +13,7 @@ const THUMB_DIR = path.join(STORAGE_DIR, '.thumbs');
 const DB_PATH = path.join(STORAGE_DIR, 'photos.db');
 const THUMB_SIZE = 512;
 const DIST_DIR = path.join(ROOT, 'dist');
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3030;
 const DEV = process.argv.includes('--dev');
 
 const IMAGE_EXT = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif', '.bmp', '.svg', '.heic'];

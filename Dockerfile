@@ -19,6 +19,6 @@ COPY server.js package.json ./
 
 # data/, photos.db and .thumbs/ live here (bind-mounted from the host folder)
 ENV STORAGE_DIR=/storage
-ENV PORT=3000
-EXPOSE 3000
+ENV PORT=3030
+EXPOSE 3030
 CMD ["node", "server.js"]

@@ -21,7 +21,7 @@ organize them with favorites and albums.
 docker compose up -d --build
 ```
 
-Open <http://localhost:3000>.
+Open <http://localhost:3030>.
 
 The project folder is mounted into the container, so everything stays on your machine:
 
@@ -40,8 +40,8 @@ thumbnails. Image thumbnails use macOS `sips`, or `vipsthumbnail` on Linux.
 
 ```bash
 pnpm install
-pnpm dev     # dev mode with hot reload  → http://localhost:3000
-pnpm start   # build + serve             → http://localhost:3000
+pnpm dev     # dev mode with hot reload  → http://localhost:3030
+pnpm start   # build + serve             → http://localhost:3030
 ```
 
 Use `PORT=4000 pnpm start` to change the port. Don't run the local server and the Docker
