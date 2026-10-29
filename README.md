@@ -7,10 +7,12 @@ organize them with favorites and albums.
 
 ## Features
 
-- Browse everything in `./data`: **All items**, **Photos**, **Videos**, **Favorites**, grouped by month
+- Browse everything in `./data`: **All items**, **Photos**, **Videos**, **Favorites**, grouped by day
 - **Favorites**: heart any item, from the grid or the full-screen viewer
 - **Albums**: they exist only in the database, so your files are never moved. One item can be in many albums.
-- **Multi-select**: click the check circle, ⌘/Ctrl-click, Shift-click for a range, or ⌘A.
+- **Multi-select**: click the check circle, ⌘/Ctrl-click, Shift-click for a range, ⌘A,
+  **Select** next to a day to grab the whole day, or **long-press and drag** across photos
+  (works with a mouse or a finger; drag to the screen edge to auto-scroll).
   Then favorite, add to an existing or new album, or remove from the current album.
 - **Lightbox**: arrow keys to navigate, `F` to favorite, `A` to add to album, `Esc` to close
 - Fast with large libraries: cached thumbnails, video previews on hover, and a grid that

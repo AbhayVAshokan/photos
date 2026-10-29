@@ -193,15 +193,36 @@ function renderTopbar(album) {
   }
 }
 
-function groupByMonth(items) {
+function groupByDay(items) {
   const groups = [];
+  const thisYear = new Date().getFullYear();
   let cur;
   items.forEach((item, idx) => {
-    const label = new Date(item.mtime).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-    if (!cur || cur.label !== label) groups.push((cur = { label, items: [] }));
+    const d = new Date(item.mtime);
+    const key = d.toDateString();
+    if (!cur || cur.key !== key) {
+      const label = d.toLocaleDateString(undefined, {
+        weekday: 'long', day: 'numeric', month: 'long',
+        ...(d.getFullYear() !== thisYear && { year: 'numeric' }),
+      });
+      groups.push((cur = { key, label, items: [] }));
+    }
     cur.items.push({ item, idx });
   });
   return groups;
+}
+
+// Day groups currently on screen, as lists of item indexes (for "select day").
+let dayGroups = [];
+const groupNames = (gi) => dayGroups[gi].map((idx) => state.items[idx].name);
+const groupAllSelected = (gi) => groupNames(gi).every((n) => state.selected.has(n));
+
+function groupHeadHtml(c) {
+  return `<div class="group-head">
+    <h2 class="group-label">${c.label}</h2>
+    <span class="group-count">${dayGroups[c.gi].length}</span>
+    <button class="group-select" data-group="${c.gi}">${groupAllSelected(c.gi) ? 'Deselect' : 'Select'}</button>
+  </div>`;
 }
 
 function tileHtml(item, idx, delay = 0) {
@@ -223,13 +244,15 @@ function renderGrid() {
     view.innerHTML = emptyState();
     return;
   }
-  const grouped = isAlbumView() ? [{ label: null, items: state.items.map((item, idx) => ({ item, idx })) }] : groupByMonth(state.items);
+  const grouped = isAlbumView() ? [{ label: null, items: state.items.map((item, idx) => ({ item, idx })) }] : groupByDay(state.items);
+  dayGroups = grouped.map((g) => g.items.map((x) => x.idx));
 
-  // Split month groups into small chunks; chunks get appended as you scroll.
+  // Split day groups into small chunks; chunks get appended as you scroll.
   pendingChunks = [];
-  for (const g of grouped)
+  grouped.forEach((g, gi) => {
     for (let i = 0; i < g.items.length; i += CHUNK)
-      pendingChunks.push({ label: i === 0 ? g.label : null, cont: i > 0, items: g.items.slice(i, i + CHUNK) });
+      pendingChunks.push({ label: i === 0 ? g.label : null, gi, cont: i > 0, items: g.items.slice(i, i + CHUNK) });
+  });
 
   view.innerHTML = '<div id="grid-root"></div><div id="grid-sentinel"></div>';
   firstBatch = true;
@@ -255,7 +278,7 @@ function renderMoreChunks() {
   let count = 0;
   while (pendingChunks.length && count < BATCH) {
     const c = pendingChunks.shift();
-    html += `${c.label ? `<h2 class="group-label">${c.label}</h2>` : ''}
+    html += `${c.label ? groupHeadHtml(c) : ''}
       <div class="grid chunk ${c.cont ? 'cont' : ''} ${selecting} ${firstBatch ? '' : 'no-anim'}">${c.items
         .map(({ item, idx }, i) => tileHtml(item, idx, firstBatch ? Math.min(count + i, 30) * 12 : 0))
         .join('')}</div>`;
@@ -337,6 +360,17 @@ function renderAlbumsGrid() {
 
 // ---------- grid interactions ----------
 $('#view').addEventListener('click', async (e) => {
+  if (Date.now() < suppressClickUntil) return; // click that ends a drag-select
+
+  const groupBtn = e.target.closest('.group-select');
+  if (groupBtn) {
+    const gi = Number(groupBtn.dataset.group);
+    const all = groupAllSelected(gi);
+    groupNames(gi).forEach((n) => (all ? state.selected.delete(n) : state.selected.add(n)));
+    updateSelectionUI();
+    return;
+  }
+
   const tile = e.target.closest('.tile');
   if (!tile) return;
   const idx = Number(tile.dataset.idx);
@@ -367,8 +401,105 @@ function updateSelectionUI() {
     t.classList.toggle('selected', state.selected.has(state.items[t.dataset.idx].name));
   });
   document.querySelectorAll('.grid').forEach((g) => g.classList.toggle('selecting', state.selectMode || state.selected.size > 0));
+  document.querySelectorAll('.group-select').forEach((b) => {
+    b.textContent = groupAllSelected(Number(b.dataset.group)) ? 'Deselect' : 'Select';
+  });
   renderActionBar();
 }
+
+// ---------- long-press + drag to select ----------
+// Hold on a tile (mouse or finger) to start selecting, then drag across tiles to
+// select the range. Starting on a selected tile deselects instead. Dragging near the
+// top/bottom edge auto-scrolls.
+const LONG_PRESS_MS = 350;
+const EDGE_PX = 80;
+let press = null;
+let drag = null;
+let suppressClickUntil = 0;
+
+function cancelPress() {
+  if (press) clearTimeout(press.timer);
+  press = null;
+}
+
+function startDrag(idx) {
+  press = null;
+  drag = { anchor: idx, last: -1, adding: !state.selected.has(state.items[idx].name), base: new Set(state.selected), x: 0, y: 0 };
+  document.body.classList.add('drag-selecting');
+  navigator.vibrate?.(15);
+  applyDrag(idx);
+  requestAnimationFrame(autoScroll);
+}
+
+function applyDrag(idx) {
+  if (idx === drag.last) return;
+  drag.last = idx;
+  const [a, b] = [drag.anchor, idx].sort((x, y) => x - y);
+  state.selected = new Set(drag.base);
+  for (let i = a; i <= b; i++) {
+    const n = state.items[i].name;
+    drag.adding ? state.selected.add(n) : state.selected.delete(n);
+  }
+  state.lastClicked = idx;
+  updateSelectionUI();
+}
+
+function moveDrag(x, y) {
+  drag.x = x;
+  drag.y = y;
+  const tile = document.elementFromPoint(x, y)?.closest('.tile');
+  if (tile) applyDrag(Number(tile.dataset.idx));
+}
+
+function autoScroll() {
+  if (!drag) return;
+  const { y } = drag;
+  const speed = y < EDGE_PX ? -(EDGE_PX - y) / 3 : y > innerHeight - EDGE_PX ? (y - (innerHeight - EDGE_PX)) / 3 : 0;
+  if (speed && y) {
+    scrollBy(0, speed);
+    moveDrag(drag.x, drag.y);
+  }
+  requestAnimationFrame(autoScroll);
+}
+
+function endDrag() {
+  cancelPress();
+  if (!drag) return;
+  drag = null;
+  document.body.classList.remove('drag-selecting');
+  suppressClickUntil = Date.now() + 400;
+}
+
+$('#view').addEventListener('pointerdown', (e) => {
+  if (e.button !== 0 || e.target.closest('[data-act="fav"]')) return;
+  const tile = e.target.closest('.tile');
+  if (!tile) return;
+  const idx = Number(tile.dataset.idx);
+  press = { x: e.clientX, y: e.clientY, timer: setTimeout(() => startDrag(idx), LONG_PRESS_MS) };
+});
+document.addEventListener('pointermove', (e) => {
+  if (drag) return moveDrag(e.clientX, e.clientY);
+  if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) > 8) cancelPress(); // it's a scroll
+});
+document.addEventListener('pointerup', endDrag);
+document.addEventListener('pointercancel', (e) => {
+  // On touch the browser may cancel pointers once we block scrolling; touchend ends the drag then.
+  if (!(drag && e.pointerType === 'touch')) endDrag();
+});
+// While drag-selecting on touch: stop the page from scrolling and track the finger.
+document.addEventListener(
+  'touchmove',
+  (e) => {
+    if (!drag) return;
+    e.preventDefault();
+    moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+  },
+  { passive: false }
+);
+document.addEventListener('touchend', endDrag);
+document.addEventListener('touchcancel', endDrag);
+$('#view').addEventListener('contextmenu', (e) => (press || drag) && e.preventDefault());
+$('#view').addEventListener('dragstart', (e) => e.preventDefault());
 
 function clearSelection(rerender = true) {
   state.selected.clear();
