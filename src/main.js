@@ -413,6 +413,7 @@ function updateSelectionUI() {
 // top/bottom edge auto-scrolls.
 const LONG_PRESS_MS = 350;
 const EDGE_PX = 80;
+const MAX_SCROLL = 24; // px per frame
 let press = null;
 let drag = null;
 let suppressClickUntil = 0;
@@ -454,7 +455,8 @@ function moveDrag(x, y) {
 function autoScroll() {
   if (!drag) return;
   const { y } = drag;
-  const speed = y < EDGE_PX ? -(EDGE_PX - y) / 3 : y > innerHeight - EDGE_PX ? (y - (innerHeight - EDGE_PX)) / 3 : 0;
+  const raw = y < EDGE_PX ? -(EDGE_PX - y) / 3 : y > innerHeight - EDGE_PX ? (y - (innerHeight - EDGE_PX)) / 3 : 0;
+  const speed = Math.max(-MAX_SCROLL, Math.min(MAX_SCROLL, raw)); // pointer may be outside the window
   if (speed && y) {
     scrollBy(0, speed);
     moveDrag(drag.x, drag.y);
