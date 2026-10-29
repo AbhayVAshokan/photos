@@ -1,0 +1,7 @@
+node_modules
+dist
+data
+.thumbs
+photos.db*
+.git
+.DS_Store

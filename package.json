@@ -1,0 +1,13 @@
+{
+  "name": "photos",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js --dev",
+    "build": "vite build",
+    "start": "vite build && node server.js"
+  },
+  "devDependencies": {
+    "vite": "^8.3.5"
+  }
+}

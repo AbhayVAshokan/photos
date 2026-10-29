@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Photos</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
+  </head>
+  <body>
+    <div id="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-logo"></div>
+          <span>Photos</span>
+        </div>
+        <nav>
+          <div class="nav-label">Library</div>
+          <ul id="library-nav"></ul>
+          <div class="nav-label">
+            Albums
+            <button class="icon-btn small" id="new-album-btn" title="New album"></button>
+          </div>
+          <ul id="album-nav"></ul>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <h1 id="view-title">All items</h1>
+            <p id="view-subtitle"></p>
+          </div>
+          <div class="topbar-actions" id="topbar-actions"></div>
+        </header>
+        <section id="view"></section>
+      </main>
+    </div>
+
+    <div class="action-bar" id="action-bar"></div>
+    <div class="lightbox" id="lightbox"></div>
+    <div class="modal-backdrop" id="modal"></div>
+    <div class="toasts" id="toasts"></div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

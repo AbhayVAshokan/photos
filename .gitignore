@@ -1,0 +1,13 @@
+# your photos and app state
+data/
+photos.db*
+.thumbs/
+
+# build / deps
+node_modules/
+dist/
+
+# misc
+.DS_Store
+*.log
+.env

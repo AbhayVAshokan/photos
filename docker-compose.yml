@@ -1,0 +1,11 @@
+services:
+  photos:
+    build: .
+    container_name: photos
+    ports:
+      - "3000:3000"
+    volumes:
+      # This folder is mounted as storage: ./data (your photos), ./photos.db and
+      # ./.thumbs all stay on your machine and survive container restarts/rebuilds.
+      - ./:/storage
+    restart: unless-stopped
